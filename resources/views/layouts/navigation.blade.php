@@ -26,8 +26,11 @@
                         <x-nav-link :href="route('petugas.pendaftaran.index')" :active="request()->routeIs('petugas.pendaftaran.*')">
                             {{ __('Pendaftaran Antrian') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.dokter.index')" :active="request()->routeIs('admin.dokter.*')">
-                            {{ __('Kelola Dokter & Jadwal') }}
+                        <x-nav-link :href="route('admin.dokter.index')" :active="request()->routeIs('admin.*')">
+                            {{ __('Dokter & Jadwal') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('kasir.laporan.pendapatan')" :active="request()->routeIs('kasir.laporan.*')">
+                            {{ __('Laporan Keuangan') }}
                         </x-nav-link>
                     @endif
 
@@ -40,6 +43,9 @@
                     @if(Auth::user()->peran === 'kasir')
                         <x-nav-link :href="route('kasir.tagihan.index')" :active="request()->routeIs('kasir.tagihan.*')">
                             {{ __('Kasir & Billing') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('kasir.laporan.pendapatan')" :active="request()->routeIs('kasir.laporan.*')">
+                            {{ __('Laporan Pendapatan') }}
                         </x-nav-link>
                     @endif
                 </div>
@@ -111,8 +117,11 @@
                 <x-responsive-nav-link :href="route('petugas.pendaftaran.index')" :active="request()->routeIs('petugas.pendaftaran.*')">
                     {{ __('Pendaftaran Antrian') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.dokter.index')" :active="request()->routeIs('admin.dokter.*')">
+                <x-responsive-nav-link :href="route('admin.dokter.index')" :active="request()->routeIs('admin.*')">
                     {{ __('Dokter & Jadwal') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('kasir.laporan.pendapatan')" :active="request()->routeIs('kasir.laporan.*')">
+                    {{ __('Laporan Keuangan') }}
                 </x-responsive-nav-link>
             @endif
 
@@ -125,6 +134,9 @@
             @if(Auth::user()->peran === 'kasir')
                 <x-responsive-nav-link :href="route('kasir.tagihan.index')" :active="request()->routeIs('kasir.tagihan.*')">
                     {{ __('Kasir & Billing') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('kasir.laporan.pendapatan')" :active="request()->routeIs('kasir.laporan.*')">
+                    {{ __('Laporan Pendapatan') }}
                 </x-responsive-nav-link>
             @endif
         </div>

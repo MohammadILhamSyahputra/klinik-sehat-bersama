@@ -116,7 +116,7 @@ class PemeriksaanController extends Controller
 
         $validated = $request->validate([
             'diagnosis_id' => ['required', 'exists:diagnoses,id'],
-            'jenis' => ['required', 'in:Primer,Sekunder'],
+            'jenis' => ['required', 'in:Utama,Sekunder'],
         ]);
 
         KunjunganDiagnosis::tambah_diagnosis($kunjungan, (int) $validated['diagnosis_id'], $validated['jenis']);

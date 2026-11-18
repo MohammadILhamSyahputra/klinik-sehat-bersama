@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\PerusahaanAsuransiController;
 use App\Http\Controllers\Admin\TindakanController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dokter\PemeriksaanController;
+use App\Http\Controllers\Kasir\LaporanController;
 use App\Http\Controllers\Kasir\TagihanController;
 use App\Http\Controllers\Petugas\PasienAsuransiController;
 use App\Http\Controllers\Petugas\PasienController;
@@ -15,7 +16,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -68,9 +69,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // ==========================================
-    // AREA KASIR
+    // AREA KASIR & LAPORAN
     // ==========================================
-    Route::middleware('role:kasir')->prefix('kasir')->name('kasir.')->group(function () {
+    Route::middleware('role:kasir,petugas_administrasi')->prefix('kasir')->name('kasir.')->group(function () {
         Route::get('tagihan', [TagihanController::class, 'index'])->name('tagihan.index');
         Route::get('tagihan/{tagihan}', [TagihanController::class, 'show'])->name('tagihan.show');
         Route::post('tagihan/{tagihan}/tebus-obat/{resepDetail}', [TagihanController::class, 'tebusObat'])->name('tagihan.tebus-obat');
@@ -78,6 +79,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('tagihan/{tagihan}/hasil-klaim/{klaim}', [TagihanController::class, 'prosesHasilKlaim'])->name('tagihan.hasil-klaim');
         Route::post('tagihan/{tagihan}/bayar', [TagihanController::class, 'bayar'])->name('tagihan.bayar');
         Route::post('tagihan/{tagihan}/tutup', [TagihanController::class, 'tutup'])->name('tagihan.tutup');
+
+        // Laporan Keuangan & Klaim Asuransi
+        Route::get('laporan/pendapatan', [LaporanController::class, 'pendapatan'])->name('laporan.pendapatan');
     });
 
     // ==========================================

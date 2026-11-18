@@ -126,7 +126,7 @@
                             </div>
                             <div>
                                 <select name="jenis" required class="w-full rounded-lg border-gray-300 focus:border-teal-500 focus:ring-teal-500 text-xs">
-                                    <option value="Primer">Primer (Utama)</option>
+                                    <option value="Utama">Utama (Primer)</option>
                                     <option value="Sekunder">Sekunder</option>
                                 </select>
                             </div>
