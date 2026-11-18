@@ -1,25 +1,59 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 shadow-sm">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                    <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
+                        <div class="w-9 h-9 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                            K
+                        </div>
+                        <span class="font-bold text-gray-800 text-lg hidden sm:inline">Klinik Sehat</span>
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @if(Auth::user()->peran === 'petugas_administrasi')
+                        <x-nav-link :href="route('petugas.pasien.index')" :active="request()->routeIs('petugas.pasien.*')">
+                            {{ __('Data Pasien') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('petugas.pendaftaran.index')" :active="request()->routeIs('petugas.pendaftaran.*')">
+                            {{ __('Pendaftaran Antrian') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.dokter.index')" :active="request()->routeIs('admin.dokter.*')">
+                            {{ __('Kelola Dokter & Jadwal') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->peran === 'dokter')
+                        <x-nav-link :href="route('dokter.pemeriksaan.antrian')" :active="request()->routeIs('dokter.pemeriksaan.*')">
+                            {{ __('Antrian Pemeriksaan Pasien') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->peran === 'kasir')
+                        <x-nav-link :href="route('kasir.tagihan.index')" :active="request()->routeIs('kasir.tagihan.*')">
+                            {{ __('Kasir & Billing') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold mr-3
+                    @if(Auth::user()->peran === 'petugas_administrasi') bg-blue-100 text-blue-800
+                    @elseif(Auth::user()->peran === 'dokter') bg-emerald-100 text-emerald-800
+                    @else bg-purple-100 text-purple-800 @endif">
+                    {{ ucfirst(str_replace('_', ' ', Auth::user()->peran)) }}
+                </span>
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
@@ -35,17 +69,16 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            {{ __('Profil Saya') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                                {{ __('Keluar (Log Out)') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -70,28 +103,50 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @if(Auth::user()->peran === 'petugas_administrasi')
+                <x-responsive-nav-link :href="route('petugas.pasien.index')" :active="request()->routeIs('petugas.pasien.*')">
+                    {{ __('Data Pasien') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('petugas.pendaftaran.index')" :active="request()->routeIs('petugas.pendaftaran.*')">
+                    {{ __('Pendaftaran Antrian') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.dokter.index')" :active="request()->routeIs('admin.dokter.*')">
+                    {{ __('Dokter & Jadwal') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->peran === 'dokter')
+                <x-responsive-nav-link :href="route('dokter.pemeriksaan.antrian')" :active="request()->routeIs('dokter.pemeriksaan.*')">
+                    {{ __('Antrian Periksa') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->peran === 'kasir')
+                <x-responsive-nav-link :href="route('kasir.tagihan.index')" :active="request()->routeIs('kasir.tagihan.*')">
+                    {{ __('Kasir & Billing') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
                 <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }} ({{ ucfirst(str_replace('_', ' ', Auth::user()->peran)) }})</div>
             </div>
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    {{ __('Profil') }}
                 </x-responsive-nav-link>
 
-                <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                        {{ __('Keluar') }}
                     </x-responsive-nav-link>
                 </form>
             </div>
