@@ -98,26 +98,27 @@
                                 placeholder="Edukasi diet, kontrol ulang dalam 3 hari, dsb..."
                                 class="w-full rounded-lg border-gray-300 focus:border-teal-500 focus:ring-teal-500 text-sm">
                         </div>
-                        @if($kunjungan->status !== 'Selesai')
-                            <div class="flex justify-end">
-                                <button type="submit" class="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold rounded-lg shadow-sm transition">
-                                    Simpan Catatan Pemeriksaan
-                                </button>
-                            </div>
-                        @endif
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+                                Simpan / Perbarui Catatan
+                            </button>
+                        </div>
                     </form>
                 </div>
 
-                <!-- 2. Diagnosis (ICD) -->
+                <!-- 2. Diagnosis (ICD) & Revisi Diagnosis (Activity 7 & Sequence 9) -->
                 <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
-                    <h3 class="font-bold text-gray-800 text-base border-b border-gray-100 pb-2">2. Diagnosis Medis</h3>
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <h3 class="font-bold text-gray-800 text-base">2. Diagnosis Medis & Revisi Diagnosis</h3>
+                        <span class="text-xs text-gray-400">Activity Diagram 7 &bull; Sequence Diagram 9</span>
+                    </div>
 
                     @if($kunjungan->status !== 'Selesai')
                         <form method="POST" action="{{ route('dokter.pemeriksaan.diagnosis.store', $kunjungan) }}" class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
                             @csrf
                             <div class="sm:col-span-2">
                                 <select name="diagnosis_id" required class="w-full rounded-lg border-gray-300 focus:border-teal-500 focus:ring-teal-500 text-xs">
-                                    <option value="">-- Pilih Diagnosis (ICD-10) --</option>
+                                    <option value="">-- Tambah Diagnosis (ICD-10) --</option>
                                     @foreach($masterDiagnoses as $diag)
                                         <option value="{{ $diag->id }}">{{ $diag->kode_diagnosis }} - {{ $diag->nama_diagnosis }}</option>
                                     @endforeach
@@ -131,26 +132,75 @@
                             </div>
                             <div>
                                 <button type="submit" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-lg transition">
-                                    + Diagnosis
+                                    + Tambah
                                 </button>
                             </div>
                         </form>
                     @endif
 
-                    <div class="space-y-2">
+                    <div class="space-y-3">
                         @forelse($kunjungan->kunjunganDiagnoses as $kd)
-                            <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white text-xs">
-                                <div>
-                                    <span class="font-mono font-bold text-teal-700">{{ $kd->diagnosis->kode_diagnosis }}</span> &mdash;
-                                    <span class="font-semibold text-gray-800">{{ $kd->diagnosis->nama_diagnosis }}</span>
-                                    <span class="ml-2 px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">{{ $kd->jenis }}</span>
+                            <div x-data="{ openRevisi: false }" class="p-3 rounded-lg border border-gray-100 bg-white space-y-2">
+                                <div class="flex items-center justify-between text-xs">
+                                    <div>
+                                        <span class="font-mono font-bold text-teal-700">{{ $kd->diagnosis->kode_diagnosis }}</span> &mdash;
+                                        <span class="font-semibold text-gray-800">{{ $kd->diagnosis->nama_diagnosis }}</span>
+                                        <span class="ml-2 px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">{{ $kd->jenis }}</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button @click="openRevisi = !openRevisi" type="button" class="text-amber-600 hover:text-amber-700 font-semibold underline text-xs">
+                                            Revisi Diagnosis
+                                        </button>
+                                        @if($kunjungan->status !== 'Selesai')
+                                            <form method="POST" action="{{ route('dokter.pemeriksaan.diagnosis.destroy', [$kunjungan, $kd]) }}" onsubmit="return confirm('Hapus diagnosis ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-rose-600 hover:underline">Hapus</button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </div>
-                                @if($kunjungan->status !== 'Selesai')
-                                    <form method="POST" action="{{ route('dokter.pemeriksaan.diagnosis.destroy', [$kunjungan, $kd]) }}" onsubmit="return confirm('Hapus diagnosis ini?')">
+
+                                <!-- Form Revisi Diagnosis (Modal/Dropdown) -->
+                                <div x-show="openRevisi" class="p-3 bg-amber-50/60 rounded-lg border border-amber-200 mt-2 space-y-2 text-xs" style="display: none;">
+                                    <p class="font-bold text-amber-900">Ubah Diagnosis (Audit Trail Revisi):</p>
+                                    <form method="POST" action="{{ route('dokter.pemeriksaan.diagnosis.update', [$kunjungan, $kd]) }}" class="space-y-2">
                                         @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-rose-600 hover:underline">Hapus</button>
+                                        @method('PUT')
+                                        <div>
+                                            <label class="block text-gray-600 mb-1">Pilih Diagnosis Baru:</label>
+                                            <select name="diagnosis_baru_id" required class="w-full rounded border-gray-300 text-xs">
+                                                <option value="">-- Pilih Diagnosis Baru --</option>
+                                                @foreach($masterDiagnoses as $diag)
+                                                    @if($diag->id !== $kd->diagnosis_id)
+                                                        <option value="{{ $diag->id }}">{{ $diag->kode_diagnosis }} - {{ $diag->nama_diagnosis }}</option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-600 mb-1">Alasan Perubahan Diagnosis <span class="text-rose-500">*</span>:</label>
+                                            <input type="text" name="alasan" required placeholder="Contoh: Hasil lab darah menunjukkan tifoid bukan common cold"
+                                                class="w-full rounded border-gray-300 text-xs">
+                                        </div>
+                                        <div class="flex justify-end gap-2 pt-1">
+                                            <button type="button" @click="openRevisi = false" class="px-2.5 py-1 bg-gray-200 text-gray-700 rounded text-xs">Batal</button>
+                                            <button type="submit" class="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded text-xs">Simpan Revisi Diagnosis</button>
+                                        </div>
                                     </form>
+                                </div>
+
+                                <!-- Riwayat Jejak Revisi Diagnosis Terlampir -->
+                                @if($kd->revisiDiagnoses->isNotEmpty())
+                                    <div class="pt-2 border-t border-gray-100 text-[11px] text-gray-500 space-y-1">
+                                        <span class="font-bold text-gray-700">Audit Trail Revisi:</span>
+                                        @foreach($kd->revisiDiagnoses as $rev)
+                                            <div class="p-1.5 bg-gray-50 rounded">
+                                                Diagnosis diubah dari <strong>"{{ $rev->diagnosis_lama }}"</strong> menjadi <strong>"{{ $rev->diagnosis_baru }}"</strong> oleh dr. {{ $rev->dokter->user->name }} pada {{ $rev->waktu_revisi->format('d/m/Y H:i') }}.
+                                                <div class="text-gray-400 italic">Alasan: {{ $rev->alasan }}</div>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 @endif
                             </div>
                         @empty
@@ -210,7 +260,7 @@
                     </div>
                 </div>
 
-                <!-- 4. Resep Obat -->
+                <!-- 4. Resep Obat (Sesuai Activity 6 & Sequence 5) -->
                 <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
                     <h3 class="font-bold text-gray-800 text-base border-b border-gray-100 pb-2">4. Resep Obat</h3>
 
@@ -277,7 +327,7 @@
                     <div class="pt-4 border-t border-gray-100 flex items-center justify-between bg-teal-50/50 p-5 rounded-xl border border-teal-100">
                         <div>
                             <h4 class="font-bold text-gray-900 text-sm">Selesaikan Pemeriksaan?</h4>
-                            <p class="text-xs text-gray-500">Pemeriksaan akan ditandai selesai dan tagihan biaya akan otomatis dikirim ke Kasir.</p>
+                            <p class="text-xs text-gray-500">Pemeriksaan akan ditandai selesai dan tagihan biaya akan otomatis dibuat untuk Kasir.</p>
                         </div>
                         <form method="POST" action="{{ route('dokter.pemeriksaan.selesai', $kunjungan) }}" onsubmit="return confirm('Yakin ingin menyelesaikan pemeriksaan untuk pasien ini?')">
                             @csrf
@@ -291,4 +341,3 @@
         </div>
     </div>
 </x-app-layout>
-
