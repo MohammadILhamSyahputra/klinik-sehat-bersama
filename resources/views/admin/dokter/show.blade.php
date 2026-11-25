@@ -57,13 +57,13 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Jam Mulai</label>
-                            <input type="time" name="jam_mulai" required value="08:00"
-                                class="w-full rounded-lg border-gray-300 focus:border-teal-500 focus:ring-teal-500 text-xs">
+                            <input type="text" name="jam_mulai" required value="08:00" placeholder="HH:MM"
+                                class="jam-24 w-full rounded-lg border-gray-300 focus:border-teal-500 focus:ring-teal-500 text-xs">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Jam Selesai</label>
-                            <input type="time" name="jam_selesai" required value="14:00"
-                                class="w-full rounded-lg border-gray-300 focus:border-teal-500 focus:ring-teal-500 text-xs">
+                            <input type="text" name="jam_selesai" required value="14:00" placeholder="HH:MM"
+                                class="jam-24 w-full rounded-lg border-gray-300 focus:border-teal-500 focus:ring-teal-500 text-xs">
                         </div>
                     </div>
                     <button type="submit" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
@@ -149,5 +149,19 @@
             </div>
         </div>
     </div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        flatpickr('.jam-24', {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: 'H:i',   // nilai yang dikirim ke server, contoh 08:00 atau 19:30
+            time_24hr: true,     // pemilih jam 24 jam, tanpa AM/PM
+            minuteIncrement: 5,
+            allowInput: true
+        });
+    });
+</script>
 </x-app-layout>
 
